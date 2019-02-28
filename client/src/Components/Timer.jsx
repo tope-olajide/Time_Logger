@@ -1,8 +1,11 @@
 import React, { Component } from "react";
 import { Card, Button,Col } from "react-bootstrap";
 class Timer extends Component {
+  handleStart= ()=>{
+return this.props.tick(this.props.id)
+   }
   render() {
-    
+
     return (
       <Col md={4}>
       <Card>
@@ -17,7 +20,7 @@ class Timer extends Component {
                 <h1>{ this.props.hours}:{ this.props.minutes}:{ this.props.seconds}</h1>
               </Card.Body>
               <Card.Footer>
-                <Button variant="light">Start</Button>
+                <Button variant="light" onClick ={this.handleStart}>Start</Button>
                 <Button variant="light">Edit</Button>
                 <Button variant="light">Delete</Button>
               </Card.Footer>
