@@ -71,29 +71,39 @@ this.stopTimer()
     tickingSeconds = 60; tickingMinutes =tickingMinutes - 1
       }
   */
-if (tickingSeconds <= 0  && tickingMinutes >=0 && tickingHours >= 0) {
+if (tickingSeconds <= 1  && tickingMinutes >=1 && tickingHours >= 0) {
         tickingSeconds = 4; tickingMinutes -= 1
-
  }
  else if(tickingSeconds <= 0 && tickingMinutes <= 0 && tickingHours >=1){
   tickingSeconds = 4; tickingMinutes = 2; tickingHours-=1
- 
  }
  else if(tickingSeconds <= 0&& tickingMinutes <=0 && tickingHours <=0) {
   this.stopTimer()
-  
-  
+  projectList[projectKey].finished=true
+  this.setState(projectList)
+  this.loadNextTimer()
  }
 else {
   tickingSeconds-=1
 }
 projectList[projectKey].seconds=tickingSeconds
 projectList[projectKey].minutes=tickingMinutes
- projectList[projectKey].hours=tickingHours 
+projectList[projectKey].hours=tickingHours 
 this.setState(projectList)
 console.log(this.state.projectList[projectKey])
 }
 stopTimer=()=>{clearInterval(this.ticker())};
+loadNextTimer=()=>{
+const nextTimer = this.state.projectList.map((timer)=>{
+  return timer.finished === false
+})
+if (nextTimer.length>0){
+  return this.tick(nextTimer[0].id)
+}
+else{
+  return 
+}
+}
 /*     this.setState(prevState =>({
       projectList:  [prevState.projectList[0],{seconds:444,minutes:555,hours:777}],
     })); 
@@ -169,7 +179,7 @@ stopTimer=()=>{clearInterval(this.ticker())};
       hours,
       minutes,
       seconds,
-      completed:false
+      finished:false
     };
     this.setState(prevState => ({
       projectList: [...prevState.projectList, data]
