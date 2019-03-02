@@ -24,10 +24,10 @@ class TimersDashboard extends Component {
       minutes: 0,
       seconds: 0,
       projectList: [],
-      tickingSeconds: 9,
-      tickingMinutes: 7,
-      tickingHours: 909,
-      projectKey:0
+      tickingSeconds: 0,
+      tickingMinutes: 0,
+      tickingHours: 0,
+      projectKey: 0
     };
   }
   increment = () => {
@@ -38,79 +38,116 @@ class TimersDashboard extends Component {
     console.log(value);
   };
   tick = projectId => {
-    this.state.projectList.map((project,key )=> {
+    this.state.projectList.map((project, key) => {
       if (project.id === projectId) {
-        this.ticker(key)
+        this.setState(
+          {
+            projectKey: key
+          },
+          this.ticker()
+        );
       }
       return project;
-    })
+    });
+  }; // minutesCounter
+  ticker = () => {
+    this.timerr = setInterval(() => this.timmer(), 1000);
+  };
+  timmer = () => {
+    let projectList = { ...this.state.projectList };
+    let tickingSeconds = parseInt(
+      projectList[this.state.projectKey].seconds,
+      10
+    );
+    let tickingMinutes = parseInt(
+      projectList[this.state.projectKey].minutes,
+      10
+    );
+    let tickingHours = parseInt(projectList[this.state.projectKey].hours, 10);
+    let timerIsRunning= projectList[this.state.projectKey].timerIsRunning
+    let disableStartBtn= projectList[this.state.projectKey].disableStartBtn
+    let disableStopBtn= projectList[this.state.projectKey].disableStopBtn
+    tickingSeconds -= 1;
+    if (tickingSeconds < 0) {
+      tickingSeconds = 4;
+      tickingMinutes -= 1;
+      timerIsRunning = true;
+      disableStartBtn = true;
+      disableStopBtn = false
+    }
+    if (tickingMinutes < 0) {
+      tickingSeconds = 4;
+      tickingMinutes = 4;
+      tickingHours -= 1;
+      timerIsRunning = true;
+      disableStartBtn = true;
+      disableStopBtn = false
+    }
+    if (tickingHours < 0) {
+      this.stopTimer();
+      tickingSeconds = 0;
+      tickingMinutes = 0;
+      tickingHours = 0;
+      projectList[this.state.projectKey].finished = true;
+      timerIsRunning = false;
+      disableStartBtn = true;
+      disableStopBtn = true
+      this.setState(projectList);
+       console.log(this.state.projectList[this.state.projectKey]);
+      setTimeout(()=>{
+        this.loadNextTimer()
+      },400)
+    }
 
-} // minutesCounter
-ticker = (key)=>{ setInterval(
-  () => this.timmer(key),
-  1000
-);
-}
-timmer = (projectKey)=>{
-  let projectList = {...this.state.projectList}
-  let tickingSeconds = parseInt(projectList[projectKey].seconds,10)
-  let tickingMinutes = parseInt(projectList[projectKey].minutes,10 )
-  let tickingHours = parseInt(projectList[projectKey].hours,10)
- /* if (tickingSeconds < 1 && tickingMinutes>1) {
-tickingSeconds = 60; tickingMinutes -= 1
+    projectList[this.state.projectKey].seconds = tickingSeconds;
+    projectList[this.state.projectKey].minutes = tickingMinutes;
+    projectList[this.state.projectKey].hours = tickingHours;
+    projectList[this.state.projectKey].timerIsRunning=timerIsRunning
+    projectList[this.state.projectKey].disableStartBtn= disableStartBtn
+    projectList[this.state.projectKey].disableStopBtn=disableStopBtn
+    this.setState(projectList);
+   console.log(this.state.projectList[this.state.projectKey]);
+  };
+  stopTimer = () => {
+    let projectList = { ...this.state.projectList };
+    if(!projectList[this.state.projectKey].finished){
+      projectList[this.state.projectKey].disableStartBtn=false
+      projectList[this.state.projectKey].disableStopBtn=true
+      this.setState(projectList);
+       clearInterval(this.timerr);
+    }
+    else{
+    projectList[this.state.projectKey].timerIsRunning = false;
+    this.setState(projectList);
+    clearInterval(this.timerr);
+    }
+ 
 
-  }
-  if(tickingMinutes < 1 && tickingHours >1 )
-  {
-    tickingMinutes = 60; tickingHours -= 1
-  }
-   if(tickingSeconds < 1 && tickingMinutes < 1 && tickingHours <1){
-this.stopTimer()
-  } 
-  if (tickingSeconds ===0 ) {
-    tickingSeconds = 60; tickingMinutes =tickingMinutes - 1
+    
+
+  };
+  loadNextTimer = () => {
+    let unFinishedProject = [];
+     this.state.projectList.map(timer => {
+      if (timer.finished === false) {
+        unFinishedProject.push(timer);
       }
-  */
-if (tickingSeconds <= 1  && tickingMinutes >=1 && tickingHours >= 0) {
-        tickingSeconds = 4; tickingMinutes -= 1
- }
- else if(tickingSeconds <= 0 && tickingMinutes <= 0 && tickingHours >=1){
-  tickingSeconds = 4; tickingMinutes = 2; tickingHours-=1
- }
- else if(tickingSeconds <= 0&& tickingMinutes <=0 && tickingHours <=0) {
-  this.stopTimer()
-  projectList[projectKey].finished=true
-  this.setState(projectList)
-  this.loadNextTimer()
- }
-else {
-  tickingSeconds-=1
-}
-projectList[projectKey].seconds=tickingSeconds
-projectList[projectKey].minutes=tickingMinutes
-projectList[projectKey].hours=tickingHours 
-this.setState(projectList)
-console.log(this.state.projectList[projectKey])
-}
-stopTimer=()=>{clearInterval(this.ticker())};
-loadNextTimer=()=>{
-const nextTimer = this.state.projectList.map((timer)=>{
-  return timer.finished === false
-})
-if (nextTimer.length>0){
-  return this.tick(nextTimer[0].id)
-}
-else{
-  return 
-}
-}
-/*     this.setState(prevState =>({
+      return timer;
+    });
+    if (unFinishedProject.length > 0) {
+      console.log(unFinishedProject[0].id);
+      this.tick(unFinishedProject[0].id);
+    } else {
+      return;
+    }
+  };
+  /*     this.setState(prevState =>({
       projectList:  [prevState.projectList[0],{seconds:444,minutes:555,hours:777}],
     })); 
    */
 
   //get the current time of active timer
-/*   setActiveTimer = currentProject => {
+  /*   setActiveTimer = currentProject => {
     this.state.projectList.map(project => {
       if (project.id === currentProject) {
         this.setState({
@@ -122,7 +159,7 @@ else{
       return project;
     });
   }; */
-/*  tick = projectId => {
+  /*  tick = projectId => {
     this.setActiveTimer(projectId)
       console.log(this.state.tickingSeconds)
     
@@ -149,7 +186,7 @@ else{
     this.setState({
       date: this.state.date - 1
     }); */
-/*     this.setState({
+  /*     this.setState({
       projectList: this.state.projectList.map(project => {
         if (project.id === projectId) {
           return {
@@ -179,20 +216,27 @@ else{
       hours,
       minutes,
       seconds,
-      finished:false
+      finished: false,
+      timerIsRunning:null,
+      disableStartBtn:true,
+      disableStopBtn:true
     };
-    this.setState(prevState => ({
-      projectList: [...prevState.projectList, data]
-    }));
-    console.log(this.state.projectList);
     this.setState({
-      minutes: 0,
-      hours: 0,
-      seconds: 0,
-      projectTitle: "",
-      projectDescription: ""
-    });
+      projectList: [...this.state.projectList, data]
+    },this.enableProject)
   };
+  enableProject=()=>{
+    let projectList = { ...this.state.projectList };
+    if(projectList[0].finished){
+    projectList[this.state.projectList.length-2].disableStartBtn = true;
+    projectList[this.state.projectList.length-1].disableStartBtn = false;
+    this.setState(projectList);
+    }
+    else{
+    projectList[0].disableStartBtn = false;
+    this.setState(projectList);
+    }
+  }
   handleClose() {
     this.setState({ show: false });
   }
@@ -201,7 +245,6 @@ else{
     this.setState({ show: true });
   }
   render() {
-  
     const selectTime = time => {
       let timeArray = [];
       for (let timeCount = 0; timeCount < time; timeCount++) {
@@ -211,7 +254,7 @@ else{
         return <option>{time}</option>;
       });
     };
-    
+
     return (
       <Container>
         <Row>
@@ -225,7 +268,12 @@ else{
                 hours={project.hours}
                 minutes={project.minutes}
                 seconds={project.seconds}
+                timerIsRunning={project.timerIsRunning}
+                finished={project.finished}
                 tick={this.tick}
+                stop={this.stopTimer}
+                disableStartBtn={project.disableStartBtn}
+                disableStopBtn={project.disableStopBtn}
               />
             );
           })}
