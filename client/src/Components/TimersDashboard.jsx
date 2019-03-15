@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Timer from "./Timer";
+import ProjectForm from "./ProjectForm"
 import {
   Container,
   Row,
@@ -9,15 +10,16 @@ import {
   Modal,
   Form
 } from "react-bootstrap";
+import Alarm from './Alarm';
 class TimersDashboard extends Component {
   constructor(props) {
     super(props);
 
     this.handleShow = this.handleShow.bind(this);
     this.handleClose = this.handleClose.bind(this);
-
     this.state = {
       show: false,
+      displayAlarm:false,
       projectTitle: "",
       projectDescription: "",
       hours: 0,
@@ -94,9 +96,11 @@ class TimersDashboard extends Component {
       disableStopBtn = true
       this.setState(projectList);
        console.log(this.state.projectList[this.state.projectKey]);
-      setTimeout(()=>{
+/*       setTimeout(()=>{
         this.loadNextTimer()
-      },400)
+      },400) */
+      this.showAlarm()
+
     }
 
     projectList[this.state.projectKey].seconds = tickingSeconds;
@@ -244,17 +248,13 @@ class TimersDashboard extends Component {
   handleShow() {
     this.setState({ show: true });
   }
+  showAlarm=()=>{
+    this.setState({ displayAlarm: true });
+  }
+  stopAlarm=()=>{
+    this.setState({ displayAlarm: false });
+  }
   render() {
-    const selectTime = time => {
-      let timeArray = [];
-      for (let timeCount = 0; timeCount < time; timeCount++) {
-        timeArray.push(timeCount);
-      }
-      return timeArray.map(time => {
-        return <option>{time}</option>;
-      });
-    };
-
     return (
       <Container>
         <Row>
@@ -289,79 +289,10 @@ class TimersDashboard extends Component {
             <Modal.Title>Project Form</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form>
-              <Form.Group>
-                <Card.Title className="text-left">
-                  <Form.Label>Title </Form.Label>
-                </Card.Title>
-                <Form.Control
-                  type="text"
-                  onChange={event => {
-                    this.saveToState("projectTitle", event.target.value);
-                  }}
-                />
-              </Form.Group>
-              <Form.Group>
-                <Card.Title className="text-left">Description</Card.Title>
-                <Form.Control
-                  type="text"
-                  onChange={event => {
-                    this.saveToState("projectDescription", event.target.value);
-                  }}
-                />
-              </Form.Group>
-              <Row>
-                <Col>
-                  <Card.Title className="text-left">
-                    <Form.Label>Hour </Form.Label>
-                  </Card.Title>
-                  <Form.Control
-                    as="select"
-                    onChange={event => {
-                      this.saveToState("hours", event.target.value);
-                    }}
-                  >
-                    <option>Choose...</option>
-                    {selectTime(12)}
-                  </Form.Control>
-                  {/*                   <Form.Control
-                    placeholder="00"
-                    onChange={event => {
-                      this.saveToState("hours", event.target.value);
-                    }}
-                  /> */}
-                </Col>
-                <Col>
-                  <Card.Title className="text-left">
-                    <Form.Label>Minutes </Form.Label>
-                  </Card.Title>
-                  <Form.Control
-                    as="select"
-                    onChange={event => {
-                      this.saveToState("minutes", event.target.value);
-                    }}
-                  >
-                    {" "}
-                    <option>Choose...</option>
-                    {selectTime(60)}
-                  </Form.Control>
-                </Col>
-                <Col>
-                  <Card.Title className="text-left">
-                    <Form.Label>Seconds </Form.Label>
-                  </Card.Title>
-                  <Form.Control
-                    as="select"
-                    onChange={event => {
-                      this.saveToState("seconds", event.target.value);
-                    }}
-                  >
-                    <option>Choose...</option>
-                    {selectTime(60)}
-                  </Form.Control>
-                </Col>
-              </Row>
-            </Form>
+            <ProjectForm 
+            handleInputChange={this.saveToState}
+            />
+
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={this.handleClose}>
@@ -372,6 +303,24 @@ class TimersDashboard extends Component {
             </Button>
           </Modal.Footer>
         </Modal>
+
+        <Modal show={this.state.displayAlarm} onHide={this.stopAlarm}>
+      <Modal.Header closeButton>
+        <Modal.Title>Project Form</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+<Alarm />
+
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={this.handleClose}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={this.saveProject}>
+          Save Changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
       </Container>
     );
   }
